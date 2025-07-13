@@ -1,4 +1,14 @@
 
+# Local development notes (contains sensitive paths/logs)
+LOCAL_DEV_NOTES.md
+
+# Research paper content (not for public repo)
+paper.txt
+
+# Project progress log (local only for AI/dev context)
+_PROJECT_PROGRESS.md
+
+# Existing .gitignore content (from initial commit)
 # Binaries for programs and plugins
 *.exe
 *.dll

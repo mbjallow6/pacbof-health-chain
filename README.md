@@ -10,9 +10,9 @@ This project implements **PaC-BoF (Patient-Centric Blockchain Framework)**, a sy
 *   **Scalability:** Handling large volumes of data, including from IoMT devices.
 *   **Regulatory Compliance:** Adhering to standards like GDPR and HIPAA.
 
-The framework is based on the research presented in `paper.txt`, detailing a patient-centric approach to managing sensitive health information.
+The framework is based on the research presented in `paper.txt` (which is kept locally and not committed to this repository for privacy).
 
-## 2. Architecture
+## 2. Architecture Overview
 
 PaC-BoF employs a five-layer architecture:
 
@@ -31,131 +31,61 @@ PaC-BoF employs a five-layer architecture:
 *   **APIs:** RESTful APIs for integration.
 *   **Standards:** HL7 FHIR (for data models).
 
-## 4. Development Environment Setup
+## 4. Development Workflow & Agile Plan
 
-### 4.1. Prerequisites
+This project adheres to a robust and agile development workflow:
 
-*   **Operating System:** Linux (recommended), macOS, or Windows (with WSL2).
-*   **Required Software:**
-    *   **Docker:** Install Docker Engine and Docker Compose.
-    *   **Go:** Install Go programming language (version 1.19 or later recommended).
-    *   **Node.js:** Install Node.js (LTS version recommended, e.g., v18 or v20).
-    *   **Git:** For version control.
-    *   **Text Editor/IDE:** VS Code with Go and Docker extensions, or your preferred editor.
+*   **Version Control:** Git is used for version control. All development should occur on feature branches stemming from `main`.
+*   **Branching Strategy:** Use `main` for stable, production-ready code. Create short-lived, descriptive feature branches for new development (`feature/your-feature-name`, `bugfix/issue-description`).
+*   **Issues & Pull Requests:** All work should be tied to a GitHub Issue. Once a feature branch is complete, open a Pull Request to `main` for review.
+*   **Code Review:** All Pull Requests require at least one approving review before merging.
+*   **Automated Scripts:** Use `start-dev-day.sh` and `end-dev-day.sh` (to be created in `tools/scripts`) to set up/tear down the development environment efficiently.
+*   **Continuous Integration/Continuous Deployment (CI/CD):** Future phases will integrate CI/CD pipelines for automated testing and deployment.
+*   **Incremental Development:** The project will be developed in small, manageable increments (akin to agile sprints), focusing on delivering core functionalities first and then iterating.
 
-### 4.2. Hyperledger Fabric Installation
+## 5. Setup & Getting Started (High-Level)
 
-Follow the official Hyperledger Fabric documentation to install the necessary binaries and Docker images:
-[https://hyperledger-fabric.readthedocs.io/en/latest/install.html](https://hyperledger-fabric.readthedocs.io/en/latest/install.html)
+For detailed local environment setup, please refer to `LOCAL_DEV_NOTES.md` (which contains sensitive path information and should not be shared publicly).
 
-*   **Install Fabric Binaries & Samples:** Use the `install-fabric.sh` script. We've used specific versions for reproducibility:
+1.  **Prerequisites:** Ensure Docker, Go, Node.js, and Git are installed.
+2.  **Hyperledger Fabric Installation:** Install Hyperledger Fabric binaries and samples (e.g., to `~/fabric-samples`).
+3.  **Shell Configuration:** Update your `~/.zshrc` (or `~/.bashrc`) with Fabric and project environment variables (`FABRIC_SAMPLES_PATH`, `PACBOF_ROOT`) and useful aliases (`goto-pacbof`, `goto-network`, `goto-fabric`).
+4.  **Project Initialization:**
     ```bash
-    # Navigate to a directory for tools, e.g., your home directory
-    cd ~ 
-    
-    # Download the installation script
-    curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh -o install-fabric.sh
-    chmod +x install-fabric.sh
-    
-    # Run the installation script (adjust versions if needed)
-    ./install-fabric.sh --fabric-version 2.5.13 --fabric-ca-version 1.5.15
+    git clone https://github.com/YOUR_GITHUB_USERNAME/pacbof-health-chain.git
+    cd pacbof-health-chain
+    # Your project setup scripts will go here once developed.
     ```
 
-### 4.3. Shell Configuration (`~/.zshrc`)
+## 6. Task Tracking & Roadmap
 
-Ensure your shell environment is clean and correctly configured. **Please follow these steps:**
+This section will track our progress and define upcoming tasks. This `README.md` will be regularly updated.
 
-1.  **Backup:** Save your current `.zshrc`: `cp ~/.zshrc ~/.zshrc.backup`
-2.  **Replace Content:** Replace the entire content of your `~/.zshrc` with the version below.
-3.  **Reload Shell:** Run `source ~/.zshrc` or open a new terminal window.
+### Current Phase: Foundational Setup and Core Functionality (Prototype)
 
-```zsh
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+*   **Completed:**
+    *   Project directory structure created.
+    *   Hyperledger Fabric binaries and samples installed.
+    *   Shell environment (`.zshrc`) configured for Fabric and project paths.
+    *   GitHub repository initialized and pushed.
+    *   `LOCAL_DEV_NOTES.md` created with previous README content.
+    *   `paper.txt` moved into project root.
+*   **Next Immediate Tasks (Phase 1):**
+    *   [ ] Update `.gitignore` to exclude `LOCAL_DEV_NOTES.md` and `paper.txt`.
+    *   [ ] Create `_PROJECT_PROGRESS.md` to track conversation summaries (and add to `.gitignore`).
+    *   [ ] Implement the "start-dev-day.sh" script in `tools/scripts`.
+    *   [ ] Implement the "end-dev-day.sh" script in `tools/scripts`.
+    *   [ ] Develop initial Fabric network configuration files (`blockchain/network/pacbof-network/docker-compose.yaml`, `configtx.yaml`).
+    *   [ ] Implement the `patient-consent` chaincode (Go) with basic functions (`CreateConsent`, `GetConsent`, `GetAllConsents`).
+    *   [ ] Develop network deployment scripts (crypto generation, channel creation, chaincode deployment).
+    *   [ ] Conduct initial testing of chaincode functions.
 
-# Path to your Oh My Zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-export PATH="$HOME/.local/bin:$PATH"
+---
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+**Contribution Guidelines:**
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+*   Always work on a dedicated feature branch.
+*   Link your work to a GitHub Issue.
+*   Submit Pull Requests for all changes.
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Which plugins would you like to load?
-plugins=(git)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# Personal aliases, overriding those provided by Oh My Zsh libs, plugins, and themes.
-# For a full list of active aliases, run `alias`.
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.ohmyzsh"
-
-# NVM and Go paths
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH=$PATH:/usr/local/go/bin
-
-# ========================================
-# Hyperledger Fabric Paths
-# ========================================
-# Ensure FABRIC_SAMPLES_PATH points to your actual installation directory
-export FABRIC_SAMPLES_PATH="/home/luka/fabric-samples"
-export FABRIC_CFG_PATH="$FABRIC_SAMPLES_PATH/config"
-export PATH="$FABRIC_SAMPLES_PATH/bin:$PATH"
-
-# ========================================
-# Project Specific Paths (PaC-BoF)
-# ========================================
-export PACBOF_ROOT="/home/luka/Documents/dev/pacbof-health-chain"
-
-# Quick navigation aliases (defined correctly without export)
-alias goto-pacbof="cd $PACBOF_ROOT"
-alias goto-network="cd $PACBOF_ROOT/blockchain/network/pacbof-network"
-alias goto-fabric="cd $FABRIC_SAMPLES_PATH"
-
-# Fabric environment verification function (defined correctly, then exported)
-verify_fabric_env() {
-    echo "🔧 Fabric Environment Status:"
-    echo "   Fabric Samples Path: $FABRIC_SAMPLES_PATH"
-    echo "   Fabric Config Path: $FABRIC_CFG_PATH"
-    echo "   Fabric Binaries in PATH: $(which peer 2>/dev/null || echo 'Not found')"
-    echo "   Peer Version: $(peer version 2>/dev/null | grep Version | cut -d' ' -f2 || echo 'Not accessible')"
-    echo "   Fabric CA Client Version: $(fabric-ca-client version 2>/dev/null | grep Version | cut -d' ' -f2 || echo 'Not accessible')"
-}
-
-# Export functions for availability in subshells
-export -f verify_fabric_env
+---
