@@ -1,0 +1,223 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+################################################################################
+#
+#   Profile
+#
+#   - `Profiles` defines the commitments of a channel to a set of consortiums,
+#     multi-organizational groups, of organizations, each of which may control
+#     some subset of the channel's members.
+#
+#   - Each profile has one consortiums group. If a consortiums group is
+#     defined, that group must contain one or more consortiums.
+#
+################################################################################
+Profiles:
+    TwoOrgsOrdererGenesis:
+        <<: *Profile
+        Capabilities:
+            <<: *OrdererCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Addresses:
+                - orderer.example.com:7050
+            BatchTimeout: 2s
+            BatchSize:
+                MaxMessageCount: 10
+                AbsoluteMaxBytes: 99 MB
+                PreferredMaxBytes: 512 KB
+            # Etcdraft support
+            OrdererType: etcdraft
+            EtcdRaft:
+                Consenters:
+                    - Host: orderer.example.com
+                      Port: 7050
+                      ClientTLSCert: organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+                      ServerTLSCert: organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Org1
+                    - *Org2
+
+    TwoOrgsApplicationChannel:
+        <<: *Profile
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org1
+                - *Org2
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+################################################################################
+#
+#   Organizations
+#
+#   - `Organizations` defines the MSPs relevant to the network
+#   - `Capabilities` describes the channel-wide capabilities that apply to this organization.
+#
+################################################################################
+Organizations:
+    - &OrdererOrg
+        # DefaultOrg defines the orderer organization defaults
+        Name: OrdererMSP
+        ID: OrdererMSP
+        MSPDir: organizations/ordererOrganizations/example.com/msp
+        Policies:
+            <<: *Policies
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin', 'OrdererMSP.peer', 'OrdererMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin', 'OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+
+    - &Org1
+        # Org1 defines an MSP for a sample organization
+        Name: Org1MSP
+        ID: Org1MSP
+        MSPDir: organizations/peerOrganizations/org1.example.com/msp
+        Policies:
+            <<: *Policies
+            Readers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org1MSP.peer')"
+
+    - &Org2
+        # Org2 defines an MSP for a sample organization
+        Name: Org2MSP
+        ID: Org2MSP
+        MSPDir: organizations/peerOrganizations/org2.example.com/msp
+        Policies:
+            <<: *Policies
+            Readers:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org2MSP.peer')"
+
+################################################################################
+#
+#   Capabilities
+#
+#   - `Capabilities` is a hash map of name/version pairs representing the
+#     configetion capabilities the channel can use (e.g. `V2_0`).
+#
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+
+################################################################################
+#
+#   Application
+#
+#   - `Application` defines the raft-based application configuration.
+#
+################################################################################
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "OR('Org1MSP.member', 'Org2MSP.member')"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "OR('Org1MSP.member', 'Org2MSP.member')"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY whichever(Org1MSP.admin, Org2MSP.admin)"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY whichever(Org1MSP.peer, Org2MSP.peer)"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY whichever(Org1MSP.peer, Org2MSP.peer)"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+#
+#   Orderer
+#
+#   - `Orderer` defines the raft-based ordering service configuration.
+#
+################################################################################
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    EtcdRaft:
+        Consenters: []
+    Addresses: []
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY ZANY(Readers)"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY ANY(Writers)"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY ZANY(Admins)"
+    Capabilities:
+        <<: *OrdererCapabilities
+
+################################################################################
+#
+#   Channel
+#
+#   - `Channel` defines the raft-based channel configuration.
+#
+################################################################################
+Channel: &Profile
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
